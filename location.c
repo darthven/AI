@@ -87,7 +87,7 @@ void file_read_matrix(Location *location, char *file_path) {
         while(!feof(file)) {
             fgets(buffer, CELL_VALUE_LENGTH, file);   
             cell = first_empty_cell(location);     
-            if(strcmp(buffer, "\n") != 0) {
+            if(cell != NULL && strcmp(buffer, "\n") != 0) {
                 if(strcmp(buffer, CELL_VALUE[WALL]) == 0) {                           
                     cell->tag = WALL;
                     cell->value = CELL_VALUE[WALL];               
