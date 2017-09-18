@@ -4,9 +4,11 @@
 #include <time.h>
 #include <unistd.h>
 
+static const char *CELL_VALUE[] = {" - ", "[X]", "{A}", "(R)"};
+
 typedef struct CellDefinition {
     enum { ROOM, WALL, AGENT, RUBBISH } tag;
-    char *value;
+    const char *value;
 } Cell;
 
 typedef struct LocationDefinition {
@@ -20,6 +22,8 @@ Location* init_location(int x_size, int y_size);
 void free_location(Location *location);
 
 void init_matrix(Location *location);
+
+Cell* first_empty_cell(Location *location);
 
 void file_write_matrix(Location *location, char *file_path,
     int walls_count, int rubbish_count, int players_count);
