@@ -24,18 +24,6 @@ void free_location(Location *location);
 
 void init_matrix(Location *location);
 
-Cell* first_empty_cell(Location *location);
-
-void define_agent_coordinates(Location *location);
-
-void move_top(Location *location);
-
-void move_bottom(Location *location);
-
-void move_left(Location *location);
-
-void move_right(Location *location);
-
 void file_write_matrix(Location *location, char *file_path,
     int walls_count, int rubbish_count, int players_count);
 
@@ -48,8 +36,6 @@ void randomize_rubbish(Location *location, int rubbish_count);
 void init_agent(Location *location, int players_count);
 
 void display_matrix(Location *location);
-
-void clean(Location *location);
 
 void start(Location *location, clock_t end_time_millis);
 

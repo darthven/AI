@@ -3,6 +3,20 @@
 
 #define CELL_VALUE_LENGTH 4
 
+Cell* first_empty_cell(Location *location);
+
+void define_agent_coordinates(Location *location);
+
+void move_top(Location *location);
+
+void move_bottom(Location *location);
+
+void move_left(Location *location);
+
+void move_right(Location *location);
+
+void clean(Location *location);
+
 Location* init_location(int x_size, int y_size) {
     Location *location = malloc(sizeof(Location));
     location->x_size = x_size;
