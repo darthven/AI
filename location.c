@@ -125,7 +125,7 @@ void init_agent(Location *location, int players_count) {
         int row_index = (int) rand() % (location->x_size - 1);
         int col_index = (int) rand() % (location->y_size - 1);
         if(location->matrix[row_index][col_index].tag == ROOM) {
-            location->matrix[row_index][col_index].tag = RUBBISH;
+            location->matrix[row_index][col_index].tag = AGENT;
             location->matrix[row_index][col_index].value = CELL_VALUE[AGENT];
         } else {
             players_count++;
@@ -143,6 +143,7 @@ void display_matrix(Location *location) {
 }
 
 void clean(Location *location) {
+
     //TODO provide logic for cleaning rooms for AI-agent
 }
 
