@@ -159,8 +159,7 @@ void display_matrix(Location *location) {
     }
 }
 
-void move_right(Location *location) {
-    define_agent_coordinates(location);   
+void move_right(Location *location) {  
     int agent_x = location->agent_coordinates[0];
     int agent_y = location->agent_coordinates[1];
     if(location->matrix[agent_x][agent_y + 1].tag != WALL) {
@@ -168,12 +167,11 @@ void move_right(Location *location) {
         location->matrix[agent_x][agent_y + 1].value = CELL_VALUE[AGENT]; 
         location->agent_coordinates[1] = agent_y + 1; 
     } else {
-        move_left(location);
+        //move_left(location);
     }        
 }
 
-void move_left(Location *location) {
-    define_agent_coordinates(location);   
+void move_left(Location *location) {   
     int agent_x = location->agent_coordinates[0];
     int agent_y = location->agent_coordinates[1];
     if(location->matrix[agent_x][agent_y - 1].tag != WALL) {
@@ -181,12 +179,11 @@ void move_left(Location *location) {
         location->matrix[agent_x][agent_y - 1].value = CELL_VALUE[AGENT];    
         location->agent_coordinates[1] = agent_y - 1;   
     } else {
-        move_right(location);
+        //move_right(location);
     }     
 }
 
-void move_top(Location *location) {
-    define_agent_coordinates(location);   
+void move_top(Location *location) { 
     int agent_x = location->agent_coordinates[0];
     int agent_y = location->agent_coordinates[1];
     if(location->matrix[agent_x - 1][agent_y].tag != WALL) {     
@@ -194,12 +191,11 @@ void move_top(Location *location) {
         location->matrix[agent_x - 1][agent_y].value = CELL_VALUE[AGENT]; 
         location->agent_coordinates[0] = agent_x - 1; 
     } else {
-        move_bottom(location);
+        //move_bottom(location);
     }        
 }
 
-void move_bottom(Location *location) {
-    define_agent_coordinates(location);   
+void move_bottom(Location *location) {    
     int agent_x = location->agent_coordinates[0];
     int agent_y = location->agent_coordinates[1];
     if(location->matrix[agent_x + 1][agent_y].tag != WALL) {     
@@ -207,19 +203,20 @@ void move_bottom(Location *location) {
         location->matrix[agent_x + 1][agent_y].value = CELL_VALUE[AGENT]; 
         location->agent_coordinates[0] = agent_x + 1;
     } else {
-        move_top(location);
+        //move_top(location);
     }  
 }
 
 void clean(Location *location) {  
     // move_left(location);
     // move_bottom(location); 
-    move_right(location);
     move_top(location); 
+    move_right(location);   
     //TODO provide logic for cleaning rooms for AI-agent
 }
 
-void start(Location *location, clock_t end_time_millis) {    
+void start(Location *location, clock_t end_time_millis) { 
+    define_agent_coordinates(location);      
     do {         
         clean(location);
         display_matrix(location);
