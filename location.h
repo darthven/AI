@@ -34,8 +34,12 @@ void free_location(Location *location);
 
 void init_matrix(Location *location);
 
-void file_write_matrix(Location *location, char *file_path, int walls_count,
+void init_matrix_in_file(Location *location, char *file_path, int walls_count,
     int rubbish_count, int players_count);
+
+void file_write_info(char *file_path, char *information);
+
+void file_write_matrix(Location *location, char *file_path);    
 
 void file_read_matrix(Location *location, char *file_path); 
 
@@ -44,8 +48,6 @@ void randomize_matrix(Location *location, int walls_count);
 void randomize_rubbish(Location *location, int rubbish_count, int weight);
 
 void init_agent(Location *location, int players_count, int energy_count);
-
-void display_matrix(Location *location);
 
 void start(Location *location, clock_t end_time_millis);
 

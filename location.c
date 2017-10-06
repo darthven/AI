@@ -4,6 +4,7 @@
 #define CELL_VALUE_LENGTH 4
 #define DEFAULT_RUBBISH_WEIGHT 1
 #define DEFAULT_AGENT_ENERGY 2000
+#define RESULT_FILE_NAME "result.mtr"
 
 Cell* first_empty_cell(Location *location);
 
@@ -14,6 +15,8 @@ void init_agent_for_file(Location *location, int players_count);
 int* rubbish_info(Location *location);
 
 void randomize_rubbish_for_file(Location *location, int rubbish_count);
+
+char* get_output(Location *location);
 
 void display_agent_stat(Location *location);
 
@@ -87,14 +90,17 @@ void randomize_matrix(Location *location, int walls_count) {
     }  
 }
 
-void file_write_matrix(Location *location, char *file_path, int walls_count,
-     int rubbish_count, int players_count) {
+void file_write_info(char *file_path, char *information) {
     FILE *file = fopen(file_path, "w");
-    if(file != NULL) {
-        init_matrix(location);
-        randomize_matrix(location, walls_count);
-        randomize_rubbish_for_file(location, rubbish_count);
-        init_agent_for_file(location, players_count);
+    if(file != NULL) {      
+        fputs(information, file);            
+    }   
+    fclose(file);
+}
+
+void file_write_matrix(Location *location, char *file_path) {
+    FILE *file = fopen(file_path, "w");
+    if(file != NULL) {      
         for(int i = 0; i < location->x_size; i++) {
             for(int j = 0; j < location->y_size; j++) {                 
                 fputs((char *) location->matrix[i][j].value, file);                                
@@ -103,6 +109,15 @@ void file_write_matrix(Location *location, char *file_path, int walls_count,
         }
     }   
     fclose(file);
+}
+
+void init_matrix_in_file(Location *location, char *file_path, int walls_count,
+     int rubbish_count, int players_count) {
+    init_matrix(location);
+    randomize_matrix(location, walls_count);
+    randomize_rubbish_for_file(location, rubbish_count);
+    init_agent_for_file(location, players_count);
+    file_write_matrix(location, file_path);
 }
 
 void file_read_matrix(Location *location, char *file_path) {
@@ -134,7 +149,8 @@ void file_read_matrix(Location *location, char *file_path) {
                     cell->value = CELL_VALUE[ROOM]; 
                 }
             }                                               
-        }          
+        }     
+        free(buffer);     
     }
     fclose(file);   
 }
@@ -168,17 +184,15 @@ void randomize_rubbish(Location *location, int rubbish_count, int weight) {
     for(int i = 0; i < rubbish_count; i++) {
         int row_index = (int) rand() % (location->x_size - 1);
         int col_index = (int) rand() % (location->y_size - 1);
-        if(location->matrix[row_index][col_index].tag != WALL) {
-            if(location->matrix[row_index][col_index].tag != RUBBISH) {
-                Rubbish rubbish;
-                rubbish.weight = weight;
-                location->matrix[row_index][col_index].rubbish = rubbish;
-                location->matrix[row_index][col_index].tag = RUBBISH;
-                location->matrix[row_index][col_index].value = CELL_VALUE[RUBBISH];
-            } else {
-                location->matrix[row_index][col_index].rubbish.weight++;
-            }          
-        }        
+        if(location->matrix[row_index][col_index].tag == ROOM) {
+            Rubbish rubbish;
+            rubbish.weight = weight;
+            location->matrix[row_index][col_index].rubbish = rubbish;
+            location->matrix[row_index][col_index].tag = RUBBISH;
+            location->matrix[row_index][col_index].value = CELL_VALUE[RUBBISH];
+        } else if(location->matrix[row_index][col_index].tag == RUBBISH) {
+            location->matrix[row_index][col_index].rubbish.weight++;
+        }                 
     }  
 }
 
@@ -217,49 +231,63 @@ void init_agent(Location *location, int players_count, int energy_count) {
 
 int* rubbish_info(Location *location) {
     int *result = (int *) malloc(2 * sizeof(int));
-    int total_weigth = 0;
+    int total_weight = 0;
     int count = 0;
     for(int i = 0; i < location->x_size; i++) {       
         for(int j = 0; j < location->y_size; j++) {            
            if(location->matrix[i][j].tag == RUBBISH) {
                count++;
-               total_weigth += location->matrix[i][j].rubbish.weight;
+               total_weight += location->matrix[i][j].rubbish.weight;
            }
         }             
     }
     result[0] = count;
-    result[1] = total_weigth;
+    result[1] = total_weight;
     return result;
 }
 
-void display_agent_stat(Location *location) {
-    printf("Agent X: %d; Agent Y: %d", location->agent_coordinates[0],
-     location->agent_coordinates[1]);    
+char* get_agent_stat(Location *location) {
+    int agent_x = location->agent_coordinates[0];
+    int agent_y = location->agent_coordinates[1];
+    char *buffer = (char *) malloc(100 * sizeof(char));
+    sprintf(buffer, "Agent X: %d; Agent Y: %d", location->agent_coordinates[0],
+    location->agent_coordinates[1]);  
+    return buffer;
 }
 
-void display_rubbish_stat(Location *location) {
+char* get_rubbish_stat(Location *location) {
     int *rubbish = rubbish_info(location);
-    printf("Rubbish count: %d; Rubbish total weight: %d", rubbish[0], rubbish[1]);    
+    char *buffer = (char *) malloc(100 * sizeof(char));
+    sprintf(buffer, "Rubbish count: %d; Rubbish total weight: %d", rubbish[0], rubbish[1]);  
     free(rubbish);
+    return buffer;
 }
 
-void display_matrix(Location *location) {
-    for(int i = 0; i < location->x_size; i++) {       
-        for(int j = 0; j < location->y_size; j++) {            
-            printf("%s", location->matrix[i][j].value);
-            if(j == location->y_size - 1) {               
-                if(i == 0) {       
-                    printf("\t");            
-                    display_agent_stat(location);
-                } else if(i == 1) {
-                    printf("\t");
-                    display_rubbish_stat(location);
-                }
-            }          
-        }        
-        printf("\n");
-    }
+char* get_stat(Location *location) {
+    char *agent_stat = get_agent_stat(location);
+    char *rubbish_stat = get_rubbish_stat(location);
+    char *buffer = (char *) malloc(strlen(agent_stat) + strlen(rubbish_stat));   
+    sprintf(buffer, "%s\n%s\n", agent_stat, rubbish_stat);
+    free(agent_stat);
+    free(rubbish_stat);
+    return buffer;
 }
+
+char* get_output(Location *location) {
+    char *buffer = (char *) malloc(location->x_size * location->y_size * CELL_VALUE_LENGTH);
+    buffer = strcpy(buffer, "");     
+    char *stat = get_stat(location);
+    strcat(buffer, stat);
+    free(stat); 
+    for(int i = 0; i < location->x_size; i++) {       
+        for(int j = 0; j < location->y_size; j++) {
+            strcat(buffer, location->matrix[i][j].value);           
+        }
+        strcat(buffer, "\n");
+    }    
+    return buffer;
+}
+
 
 void move_right(Location *location) {  
     int agent_x = location->agent_coordinates[0];
@@ -321,14 +349,19 @@ void clean(Location *location) {
 
 void start(Location *location, clock_t end_time_millis) { 
     srand(time(NULL));
-    define_agent_coordinates(location);      
+    define_agent_coordinates(location);
+    char *output;
     do {         
-        clean(location);
-        display_matrix(location);
+        clean(location);      
         int rubbish_drop_probability = (int) rand() % (location->x_size * location->y_size);
         if(rubbish_drop_probability > (location->x_size * location->y_size) / 2) {           
-            randomize_rubbish(location, 3, rand() % 10);
-        } 
-        sleep(1);
+            randomize_rubbish(location, rand() % 3, 1);
+        }       
+        output = get_output(location);
+        printf("%s", output);         
+        sleep(1);       
+        system("cls");
     } while(clock() <= end_time_millis);
+    file_write_info(RESULT_FILE_NAME, output);
+    free(output);     
 }
